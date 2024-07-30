@@ -14,7 +14,6 @@
         <h1 class="text-small">Congratulations!!</h1>
         <h1>{{ collegesStore.getCollegeSelectedName }}</h1>
         <hr />
-
       </div>
 
       <div class="ground"></div>
