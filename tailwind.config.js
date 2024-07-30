@@ -8,6 +8,12 @@ module.exports = {
       animation: {
         "text-slide-3": "text-slide-3 7.5s cubic-bezier(0.83, 0, 0.17, 1) infinite",
       },
+      spacing: {
+        '3px': '3px',
+      },
+      right:{
+        'full': "364px",
+      },
       keyframes: {
         "text-slide-3": {
           "0%, 26.66%": {

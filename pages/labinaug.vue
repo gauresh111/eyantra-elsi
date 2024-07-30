@@ -2,35 +2,48 @@
   <Transition name="fadeWelcome">
 
 
-    <div id="starter" v-if="show" class="relative z-20 mt-8 items-center text-center">
-      <span class="text-4xl font-extrabold" " > Welcome to Lab Inauguration </span>
+    <div  v-if="show" class="relative z-20 mt-8 items-center text-center">
+      <span class="text-4xl font-extrabold"> Welcome to Lab Inauguration </span>
     <img
-      id=" bot" class="mx-auto my-10 h-auto max-w-lg" src="/images/lab.png" alt="image description" />
+       class="mx-auto my-10 h-auto max-w-lg" src="~/images/lab.png" alt="image description" />
     </div>
   </Transition>
   <div id="scene" :class="{ expand: isExpanded }">
     <div id="curtain" :class="{ open: isOpen, close: isClosed }">
       <div id="inner-content" class="text-center">
         <h1 class="text-small">Congratulations!!</h1>
-        <h1>{{collegesStore.getCollegeSelectedName }}</h1>
+        <h1>{{ collegesStore.getCollegeSelectedName }}</h1>
         <hr />
-        
+
       </div>
-      
-        <div class="text-center" v-for="slide in slides" :key="slide.id">
-          <img id="bot" class="mx-auto my-0 h-fit w-fit" :src=slide[0] alt="image description" />
-          <span class="text-green-400"> {{ slide[1] }} </span>
-        </div>
-      
+
       <div class="ground"></div>
       <div class="left"></div>
       <div class="right"></div>
     </div>
   </div>
+<div v-if="!firstTime" class=" z-20 mt-8 items-center text-center" >
+  <div :id="[indexSlide == index ? 'leftimagcenter' : [previousSlide==index?'leftimagfull':'hide']]"  class="" v-for="(slide, index) in slides"
+    :key="slide.id">
+    <img class=" absolute   top-[200px] right-[736px]  " :src=slide[0] alt="image description" />
+    <span class="text-green-400 absolute   top-[500px] right-[850.5px] text-xl"> {{ slide[1] }} </span>
+  </div>
+</div>
+
+<div v-if="firstTime" class="z-20 mt-8 items-center text-center" >
+  <div :id="[isOpen?'unhide':'hide']">
+    <img class=" absolute   top-[230px] right-[736px]  " :src=slides[0][0] alt="image description" />
+    <span class="text-green-400 absolute   top-[520px] right-[850.5px] text-xl"> {{ slides[0][1] }} </span>
+  </div>
+</div>
+
+
   <SelectorNav :showTime="showTime" :closeTime="closeTime" />
 </template>
 
 <script setup>
+import { set } from 'date-fns';
+
 
 
 
@@ -63,8 +76,11 @@ const nuxtApp = useNuxtApp();
 const collegesStore = useCollegesStore();
 const makeithidden = ref(false);
 const show = ref(true)
-const slides = ref([["/images/image1.png","text"],["/images/image2.png","text"],["/images/image3.png","text"]]);
-
+const slides = ref([["/images/image1.png", "text"], ["/images/image2.png", "text"], ["/images/image3.png", "text"]]);
+const indexSlide = ref(0);
+const previousSlide = ref(0);
+const firstTime = ref(true);
+indexSlide.previous = -1;
 const showTime = () => {
   show.value = false;
   if (!isExpanded.value) {
@@ -79,6 +95,14 @@ const showTime = () => {
       starter.classList.add("fade-out");
       starter.style.display = "none";
     }, 2000);
+    setTimeout(() => {
+      setInterval(() => {
+        console.log(slides.value.length);
+        previousSlide.value = indexSlide.value;
+        indexSlide.value = (indexSlide.value + 1) % slides.value.length;
+        firstTime.value = false;
+      }, 5000);
+    }, 5000);
   } else {
     makeItRain();
   }
@@ -123,6 +147,9 @@ function makeItRain() {
   }
 
   frame();
+  onBeforeMount(() => {
+    show.value = true;
+  });
 }
 
 </script>
@@ -140,6 +167,27 @@ function makeItRain() {
   background-color: rgb(0, 0, 0);
   box-shadow: 0 0 0 2px white inset;
 }
+
+#leftimagfull {
+
+  animation: forwards;
+  animation-name: moveLeftFadeOutfull;
+  animation-duration: 3s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+  animation-direction: normal;
+}
+
+#leftimagcenter {
+  animation: forwards;
+  animation-name: moveLeftFadeOutCenter;
+  animation-duration: 3s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+  animation-direction: normal;
+}
+
+
 
 #curtain {
   top: 0;
@@ -214,7 +262,7 @@ function makeItRain() {
 #curtain.open .left {
   animation-fill-mode: forwards;
   animation-name: curtain-opening, left-curtain-opening;
-  animation-duration: 2s, 4s;
+  animation-duration: 4s, 6s;
   animation-timing-function: ease-in-out, ease-in-out;
   animation-delay: 0s, 0s;
   animation-iteration-count: 1, 1;
@@ -224,7 +272,7 @@ function makeItRain() {
 #curtain.open .right {
   animation-fill-mode: forwards;
   animation-name: curtain-opening, right-curtain-opening;
-  animation-duration: 2s, 4s;
+  animation-duration: 4s, 6s;
   animation-timing-function: ease-in-out, ease-in-out;
   animation-delay: 0s, 0s;
   animation-iteration-count: 1, 1;
@@ -253,6 +301,7 @@ function makeItRain() {
   transform: translateY(10px);
 }
 
+
 #scene.expand #inner-content {
   animation-fill-mode: forwards;
   animation-name: text-zoom, text-fade-in, text-glowing;
@@ -262,7 +311,20 @@ function makeItRain() {
   animation-iteration-count: 1, 1, infinite;
   animation-direction: normal, normal, alternate;
 }
-
+#hide{
+  
+  opacity: 0;
+}
+#unhide {
+  opacity: 0;
+  animation-fill-mode: forwards;
+  animation-name: reverseFadeOut;
+  animation-duration: 6s ;
+  animation-delay: 5s;
+  animation-timing-function: ease;
+  animation-iteration-count: 1;
+  animation-direction: normal;
+}
 .fade-out {
   animation-fill-mode: forwards;
   animation-name: fade-out;
@@ -274,6 +336,38 @@ function makeItRain() {
 }
 
 /* Animations */
+@keyframes moveLeftFadeOutfull {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+
+  to {
+    transform: translateX(-650px);
+    opacity: 0;
+  }
+}
+@keyframes reverseFadeOut {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+@keyframes moveLeftFadeOutCenter {
+  from {
+    transform: translateX(300px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
 @keyframes expand-scene-horizontally {
   from {
     width: 1200px;
